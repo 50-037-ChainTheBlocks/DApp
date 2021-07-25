@@ -1,8 +1,10 @@
 export interface Certificate {
-    name    : String,
-    course  : String, 
-    degree  : Boolean,
-    graduatingYear: number,
-    enrolledYear:number,
-    address : any
+  name: string;
+  course: string;
+  degree: string;
+  graduatingYear: string;
+  enrolledYear: string;
+  issuer: string;
+  recipient: string;
+  institutionName: string;
 }

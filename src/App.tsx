@@ -22,7 +22,7 @@ function App() {
         </a>
       </header> */}
       {/* <Login/> */}
-      <Student/>
+      <Student />
     </div>
   );
 }
