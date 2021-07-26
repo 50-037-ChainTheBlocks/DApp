@@ -66,6 +66,7 @@ const Student: Function = () => {
       .getAllMyCertificates()
       .call();
     setCertificateList(results);
+    console.log(results);
   };
   const validateAddress = useCallback(
     debounce((addr: string) => {
@@ -81,7 +82,7 @@ const Student: Function = () => {
     <Box>
       <Box mb={2}>
         <Typography variant="h4" style={{ margin: '16px 0px' }}>
-          Student Main Page
+            Student Main Page
         </Typography>
         <TextField
           label="Wallet Address"

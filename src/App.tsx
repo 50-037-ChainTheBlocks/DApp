@@ -3,6 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import { Login } from './page/login/Login';
 import { Student } from './page/student/Student';
+import { Institution } from './page/institution/Institution';
 
 function App() {
   return (
@@ -22,7 +23,8 @@ function App() {
         </a>
       </header> */}
       {/* <Login/> */}
-      <Student />
+      {/* <Student /> */}
+      <Institution/>
     </div>
   );
 }
