@@ -1,34 +1,53 @@
-import { useEffect, useState } from 'react';
-import { Tab, Tabs } from '@material-ui/core';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import Box from '@material-ui/core/Box';
+import { useEffect, useState, useCallback } from 'react';
+import {
+  Tab,
+  Tabs,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Box,
+  TextField,
+} from '@material-ui/core';
 import grey from '@material-ui/core/colors/grey';
-import { useContract, useWeb3 } from '../../services/contract/web3';
-import { Certificate } from '../../param/certificate';
+import debounce from 'lodash/debounce';
+import { useContract, useWeb3 } from '@services/contract/web3';
+import { Certificate } from '@param/certificate';
 
 const Student: Function = () => {
-  const [accountAddress, setAccountAddress] = useState<string | null>(null);
+  const [accountAddress, setAccountAddress] = useState('');
+  const [error, setError] = useState(false);
   const [certificateList, setCertificateList] = useState<Certificate[]>([]);
+  const [metamaskEnabled, setMetamaskEnabled] = useState(false);
   const web3Ref = useWeb3();
   const contractRef = useContract(web3Ref.current);
 
-  const metamaskConnect = async () => {
-    if ((window as any).ethereum === undefined) {
-      console.error('METAMASK IS NOT INSTALLED');
-      return;
-    }
+  const getAddressFromMetamask = async () => {
     const [account]: string[] = await (window as any).ethereum.request({
       method: 'eth_requestAccounts',
     });
     web3Ref.current.eth.defaultAccount = account;
+    contractRef.current.defaultAccount = account;
     setAccountAddress(account);
+  };
+
+  const metamaskConnect = () => {
+    if ((window as any).ethereum === undefined) {
+      console.error('METAMASK IS NOT INSTALLED');
+      return;
+    }
+    if (metamaskEnabled) {
+      return;
+    }
+    setMetamaskEnabled(true);
+    getAddressFromMetamask();
     (window as any).ethereum.on('accountsChanged', (accounts: string[]) => {
       if (accounts.length) setAccountAddress(accounts[0]);
+      web3Ref.current.eth.defaultAccount = accounts[0];
+      contractRef.current.defaultAccount = accounts[0];
     });
   };
+
   // useEffect(() => {
   // setAccountAddress('0x6D18286412a443CfC95d90fBB0D2F81c54455948');
   // console.log(web3.eth.getAccounts(console.log));
@@ -40,26 +59,52 @@ const Student: Function = () => {
   // }, []);
 
   const getAllMyCertificates = async () => {
+    if (error) return;
+    web3Ref.current.eth.defaultAccount = accountAddress;
+    contractRef.current.defaultAccount = accountAddress;
     const results: Certificate[] = await contractRef.current.methods
       .getAllMyCertificates()
-      .call({ from: accountAddress });
+      .call();
     setCertificateList(results);
   };
+  const validateAddress = useCallback(
+    debounce((addr: string) => {
+      setError(!web3Ref.current.utils.isAddress(addr));
+    }, 200),
+    []
+  );
+  useEffect(() => {
+    if (accountAddress) validateAddress(accountAddress);
+  }, [accountAddress, validateAddress]);
 
   return (
     <Box>
       <Box mb={2}>
-        <Typography>Student Main Page</Typography>
-        <Typography>{accountAddress}</Typography>
+        <Typography variant="h4" style={{ margin: '16px 0px' }}>
+          Student Main Page
+        </Typography>
+        <TextField
+          label="Wallet Address"
+          placeholder="0x5e971afc039cf29738eff1242db39c3bd4a02ce9"
+          value={accountAddress}
+          error={error}
+          helperText={error ? 'Invalid Address' : ''}
+          onChange={(e) => {
+            setAccountAddress(e.target.value);
+          }}
+          variant="outlined"
+          fullWidth
+          style={{ width: '500px' }}
+        />
       </Box>
       <Box mb={6}>
         <Box mb={1}>
           <Button
-            onClick={metamaskConnect}
+            onClick={metamaskEnabled ? getAddressFromMetamask : metamaskConnect}
             color="secondary"
             variant="contained"
           >
-            Connect To Metamask
+            {metamaskEnabled ? 'Import from Metamask' : 'Use Metamask'}
           </Button>
         </Box>
         <Box>
