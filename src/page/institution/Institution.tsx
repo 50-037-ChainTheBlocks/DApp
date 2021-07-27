@@ -9,7 +9,7 @@ import { Alert } from '@material-ui/lab';
 import grey from '@material-ui/core/colors/grey';
 import debounce from 'lodash/debounce';
 import { useContract, useWeb3 } from '@services/contract/web3';
-import { Certificate } from '@param/certificate';
+import { IssuedCertificate } from '@param/issuedCertificate';
 
 const Institution: Function = () => {
     const [accountAddress, setAccountAddress] = useState('');
@@ -21,7 +21,7 @@ const Institution: Function = () => {
     const web3Ref = useWeb3();
     const contractRef = useContract(web3Ref.current);
 
-    const [certificate, setCertificate] = useState<Certificate>({
+    const [certificate, setCertificate] = useState<IssuedCertificate>({
         name: "",
         course: "",
         degree: "",

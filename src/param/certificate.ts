@@ -4,7 +4,5 @@ export interface Certificate {
   degree: string;
   graduatingYear: string;
   enrolledYear: string;
-  issuer: string;
   recipient: string;
-  institutionName: string;
 }

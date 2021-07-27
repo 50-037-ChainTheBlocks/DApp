@@ -13,11 +13,12 @@ import grey from '@material-ui/core/colors/grey';
 import debounce from 'lodash/debounce';
 import { useContract, useWeb3 } from '@services/contract/web3';
 import { Certificate } from '@param/certificate';
+import { IssuedCertificate } from '@param/issuedCertificate';
 
 const Student: Function = () => {
   const [accountAddress, setAccountAddress] = useState('');
   const [error, setError] = useState(false);
-  const [certificateList, setCertificateList] = useState<Certificate[]>([]);
+  const [certificateList, setCertificateList] = useState<IssuedCertificate[]>([]);
   const [metamaskEnabled, setMetamaskEnabled] = useState(false);
   const web3Ref = useWeb3();
   const contractRef = useContract(web3Ref.current);
@@ -62,7 +63,7 @@ const Student: Function = () => {
     if (error) return;
     web3Ref.current.eth.defaultAccount = accountAddress;
     contractRef.current.defaultAccount = accountAddress;
-    const results: Certificate[] = await contractRef.current.methods
+    const results: IssuedCertificate[] = await contractRef.current.methods
       .getAllMyCertificates()
       .call();
     setCertificateList(results);
