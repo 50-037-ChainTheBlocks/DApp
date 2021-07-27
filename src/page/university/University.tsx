@@ -12,6 +12,7 @@ import {
 import grey from '@material-ui/core/colors/grey';
 import debounce from 'lodash/debounce';
 import { useContract, useWeb3 } from '@services/contract/web3';
+import { useMetamask, getAddressFromMetamask } from '@services/metamask';
 import { Certificate } from '@param/certificate';
 
 const University: Function = () => {
@@ -19,50 +20,39 @@ const University: Function = () => {
   const [error, setError] = useState(false);
 
   const [certificate, setCertificate] = useState<Certificate>({
-    name: "",
-    course: "",
-    degree: "",
-    graduatingYear: "",
-    enrolledYear: "",
-    recipient: ""
-  })
+    name: '',
+    course: '',
+    degree: '',
+    graduatingYear: '',
+    enrolledYear: '',
+    recipient: '',
+  });
+
+  const web3Ref = useWeb3();
+  const contractRef = useContract(web3Ref.current);
+  const [metamaskEnabled, metamaskConnect] = useMetamask(web3Ref.current);
+
+  const validateAddress = useCallback(
+    debounce((addr: string) => {
+      setError(!web3Ref.current.utils.isAddress(addr));
+    }, 200),
+    []
+  );
+  useEffect(() => {
+    if (accountAddress) validateAddress(accountAddress);
+  }, [accountAddress, validateAddress]);
 
   const inputChangeHandler = (evt: any) => {
     const value = evt.target.value;
     setCertificate({
       ...certificate,
-      [evt.target.name]: value
+      [evt.target.name]: value,
     });
-  }
-
-  const [metamaskEnabled, setMetamaskEnabled] = useState(false);
-  const web3Ref = useWeb3();
-  const contractRef = useContract(web3Ref.current);
-
-  const getAddressFromMetamask = async () => {
-    const [account]: string[] = await (window as any).ethereum.request({
-      method: 'eth_requestAccounts',
-    });
-    web3Ref.current.eth.defaultAccount = account;
-    contractRef.current.defaultAccount = account;
-    setAccountAddress(account);
   };
 
-  const metamaskConnect = () => {
-    if ((window as any).ethereum === undefined) {
-      console.error('METAMASK IS NOT INSTALLED');
-      return;
-    }
-    if (metamaskEnabled) {
-      return;
-    }
-    setMetamaskEnabled(true);
-    getAddressFromMetamask();
-    (window as any).ethereum.on('accountsChanged', (accounts: string[]) => {
-      if (accounts.length) setAccountAddress(accounts[0]);
-      web3Ref.current.eth.defaultAccount = accounts[0];
-      contractRef.current.defaultAccount = accounts[0];
-    });
+  const setAddressFromMetamask = async () => {
+    const addr = await getAddressFromMetamask();
+    setAccountAddress(addr);
   };
 
   // useEffect(() => {
@@ -81,83 +71,112 @@ const University: Function = () => {
     web3Ref.current.eth.defaultAccount = accountAddress;
     contractRef.current.defaultAccount = accountAddress;
     const result: boolean = await contractRef.current.methods
-        .issueCertificate(
-            certificate.name,
-            certificate.course,
-            certificate.degree,
-            certificate.graduatingYear,
-            certificate.enrolledYear, 
-            certificate.recipient
-        )
-        .send({ from: accountAddress, gas:3000000 });
-    console.log(result, accountAddress)
+      .issueCertificate(
+        certificate.name,
+        certificate.course,
+        certificate.degree,
+        certificate.graduatingYear,
+        certificate.enrolledYear,
+        certificate.recipient
+      )
+      .send({ from: accountAddress, gas: 3000000 });
+    console.log(result, accountAddress);
     // setCertificateList(results);
   };
 
-  const validateAddress = useCallback(
-    debounce((addr: string) => {
-      setError(!web3Ref.current.utils.isAddress(addr));
-    }, 200),
-    []
-  );
-  useEffect(() => {
-    if (accountAddress) validateAddress(accountAddress);
-  }, [accountAddress, validateAddress]);
-
   return (
     <Box>
+      <Box mb={2}>
+        <Typography variant="h4" style={{ margin: '16px 0px' }}>
+          University Main Page
+        </Typography>
+        <TextField
+          label="Wallet Address"
+          placeholder="0x5e971afc039cf29738eff1242db39c3bd4a02ce9"
+          value={accountAddress}
+          error={error}
+          helperText={error ? 'Invalid Address' : ''}
+          onChange={(e) => {
+            setAccountAddress(e.target.value);
+          }}
+          variant="outlined"
+          fullWidth
+          style={{ width: '500px' }}
+        />
+      </Box>
+      <Box mb={6}>
+        <Box mb={1}>
+          <Button
+            onClick={metamaskEnabled ? setAddressFromMetamask : metamaskConnect}
+            color="secondary"
+            variant="contained"
+          >
+            {metamaskEnabled ? 'Import from Metamask' : 'Use Metamask'}
+          </Button>
+        </Box>
+      </Box>
+      <Box
+        mb={6}
+        style={{ flexDirection: 'column', width: '50%', margin: 'auto' }}
+      >
         <Box mb={2}>
-            <Typography variant="h4" style={{ margin: '16px 0px' }}>
-                University Main Page
-            </Typography>
-            <TextField
-            label="Wallet Address"
-            placeholder="0x5e971afc039cf29738eff1242db39c3bd4a02ce9"
-            value={accountAddress}
-            error={error}
-            helperText={error ? 'Invalid Address' : ''}
-            onChange={(e) => {
-                setAccountAddress(e.target.value);
-            }}
+          <TextField
+            name="name"
+            label="Recipient Name"
             variant="outlined"
             fullWidth
-            style={{ width: '500px' }}
-            />
+            onChange={inputChangeHandler}
+          ></TextField>
+          {/* <TextField name = "institutionName" label="Institution Name" variant="outlined" fullWidth onChange = {inputChangeHandler}></TextField> */}
+          <TextField
+            name="course"
+            label="Course"
+            variant="outlined"
+            fullWidth
+            onChange={inputChangeHandler}
+          ></TextField>
+          <TextField
+            name="degree"
+            label="Degree"
+            variant="outlined"
+            fullWidth
+            onChange={inputChangeHandler}
+          ></TextField>
+          <TextField
+            name="enrolledYear"
+            label="Enrolled Year"
+            variant="outlined"
+            fullWidth
+            onChange={inputChangeHandler}
+          ></TextField>
+          <TextField
+            name="graduatingYear"
+            label="Graduating Year"
+            variant="outlined"
+            fullWidth
+            onChange={inputChangeHandler}
+          ></TextField>
+          {/* <TextField name = "issuer" label="Issuer" variant="outlined" fullWidth onChange = {inputChangeHandler}></TextField> */}
+          <TextField
+            name="recipient"
+            label="Recipient Address"
+            variant="outlined"
+            fullWidth
+            onChange={inputChangeHandler}
+          ></TextField>
         </Box>
-        <Box mb={6}>
-            <Box mb={1}>
-            <Button
-                onClick={metamaskEnabled ? getAddressFromMetamask : metamaskConnect}
-                color="secondary"
-                variant="contained"
-            >
-                {metamaskEnabled ? 'Import from Metamask' : 'Use Metamask'}
-            </Button>
-            </Box>
+      </Box>
+      <Box mb={6}>
+        <Box mb={1}>
+          <Button
+            onClick={issueCertificate}
+            color="primary"
+            variant="contained"
+          >
+            Issue Certificate
+          </Button>
         </Box>
-        <Box mb={6} style = {{flexDirection: 'column', width : '50%', margin:'auto'}}>
-            <Box mb = {2}>
-                <TextField name = "name" label="Recipient Name" variant="outlined" fullWidth onChange = {inputChangeHandler}></TextField>
-                {/* <TextField name = "institutionName" label="Institution Name" variant="outlined" fullWidth onChange = {inputChangeHandler}></TextField> */}
-                <TextField name = "course" label="Course" variant="outlined" fullWidth onChange = {inputChangeHandler}></TextField>
-                <TextField name = "degree" label="Degree" variant="outlined" fullWidth onChange = {inputChangeHandler}></TextField>
-                <TextField name = "enrolledYear" label="Enrolled Year" variant="outlined" fullWidth onChange = {inputChangeHandler}></TextField>
-                <TextField name = "graduatingYear" label="Graduating Year" variant="outlined" fullWidth  onChange = {inputChangeHandler}></TextField>
-                {/* <TextField name = "issuer" label="Issuer" variant="outlined" fullWidth onChange = {inputChangeHandler}></TextField> */}
-                <TextField name = "recipient" label="Recipient Address" variant="outlined" fullWidth onChange = {inputChangeHandler}></TextField>
-            </Box>
-        </Box>
-        <Box mb={6}>
-            <Box mb={1}>
-                <Button
-                    onClick={issueCertificate}
-                    color="primary"
-                    variant="contained"
-                >
-                    Issue Certificate
-                </Button>
-            </Box>
-        </Box>
+      </Box>
     </Box>
   );
 };

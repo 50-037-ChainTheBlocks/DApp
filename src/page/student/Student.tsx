@@ -12,41 +12,33 @@ import {
 import grey from '@material-ui/core/colors/grey';
 import debounce from 'lodash/debounce';
 import { useContract, useWeb3 } from '@services/contract/web3';
+import { getAddressFromMetamask, useMetamask } from '@services/metamask';
 import { Certificate } from '@param/certificate';
 import { IssuedCertificate } from '@param/issuedCertificate';
 
 const Student: Function = () => {
   const [accountAddress, setAccountAddress] = useState('');
   const [error, setError] = useState(false);
-  const [certificateList, setCertificateList] = useState<IssuedCertificate[]>([]);
-  const [metamaskEnabled, setMetamaskEnabled] = useState(false);
+  const [certificateList, setCertificateList] = useState<IssuedCertificate[]>(
+    []
+  );
   const web3Ref = useWeb3();
   const contractRef = useContract(web3Ref.current);
+  const [metamaskEnabled, metamaskConnect] = useMetamask(web3Ref.current);
 
-  const getAddressFromMetamask = async () => {
-    const [account]: string[] = await (window as any).ethereum.request({
-      method: 'eth_requestAccounts',
-    });
-    web3Ref.current.eth.defaultAccount = account;
-    contractRef.current.defaultAccount = account;
-    setAccountAddress(account);
-  };
+  const validateAddress = useCallback(
+    debounce((addr: string) => {
+      setError(!web3Ref.current.utils.isAddress(addr));
+    }, 200),
+    []
+  );
+  useEffect(() => {
+    if (accountAddress) validateAddress(accountAddress);
+  }, [accountAddress, validateAddress]);
 
-  const metamaskConnect = () => {
-    if ((window as any).ethereum === undefined) {
-      console.error('METAMASK IS NOT INSTALLED');
-      return;
-    }
-    if (metamaskEnabled) {
-      return;
-    }
-    setMetamaskEnabled(true);
-    getAddressFromMetamask();
-    (window as any).ethereum.on('accountsChanged', (accounts: string[]) => {
-      if (accounts.length) setAccountAddress(accounts[0]);
-      web3Ref.current.eth.defaultAccount = accounts[0];
-      contractRef.current.defaultAccount = accounts[0];
-    });
+  const setAddressFromMetamask = async () => {
+    const addr = await getAddressFromMetamask();
+    setAccountAddress(addr);
   };
 
   // useEffect(() => {
@@ -69,21 +61,12 @@ const Student: Function = () => {
     setCertificateList(results);
     console.log(results);
   };
-  const validateAddress = useCallback(
-    debounce((addr: string) => {
-      setError(!web3Ref.current.utils.isAddress(addr));
-    }, 200),
-    []
-  );
-  useEffect(() => {
-    if (accountAddress) validateAddress(accountAddress);
-  }, [accountAddress, validateAddress]);
 
   return (
     <Box>
       <Box mb={2}>
         <Typography variant="h4" style={{ margin: '16px 0px' }}>
-            Student Main Page
+          Student Main Page
         </Typography>
         <TextField
           label="Wallet Address"
@@ -102,7 +85,7 @@ const Student: Function = () => {
       <Box mb={6}>
         <Box mb={1}>
           <Button
-            onClick={metamaskEnabled ? getAddressFromMetamask : metamaskConnect}
+            onClick={metamaskEnabled ? setAddressFromMetamask : metamaskConnect}
             color="secondary"
             variant="contained"
           >
