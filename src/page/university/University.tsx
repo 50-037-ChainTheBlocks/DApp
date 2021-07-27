@@ -77,7 +77,7 @@ const University: Function = () => {
 
   const issueCertificate = async () => {
     if (error) return;
-    console.log(certificate);
+    console.log(certificate, accountAddress);
     web3Ref.current.eth.defaultAccount = accountAddress;
     contractRef.current.defaultAccount = accountAddress;
     const result: boolean = await contractRef.current.methods
@@ -89,8 +89,8 @@ const University: Function = () => {
             certificate.enrolledYear, 
             certificate.recipient
         )
-        .call();
-    console.log(result)
+        .send({ from: accountAddress, gas:3000000 });
+    console.log(result, accountAddress)
     // setCertificateList(results);
   };
 
@@ -108,7 +108,7 @@ const University: Function = () => {
     <Box>
         <Box mb={2}>
             <Typography variant="h4" style={{ margin: '16px 0px' }}>
-                Student Main Page
+                University Main Page
             </Typography>
             <TextField
             label="Wallet Address"
