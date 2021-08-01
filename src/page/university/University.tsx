@@ -9,6 +9,8 @@ import {
   Box,
   TextField,
 } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
+
 import grey from '@material-ui/core/colors/grey';
 import debounce from 'lodash/debounce';
 import { useContract, useWeb3 } from '@services/contract/web3';
@@ -18,6 +20,8 @@ import { Certificate } from '@param/certificate';
 const University: Function = () => {
   const [accountAddress, setAccountAddress] = useState('');
   const [error, setError] = useState(false);
+  const [status, setStatus] = useState<boolean | null>(null);
+  const [showVerify, setShowVerify] = useState(false);
 
   const [certificate, setCertificate] = useState<Certificate>({
     name: '',
@@ -67,21 +71,35 @@ const University: Function = () => {
 
   const issueCertificate = async () => {
     if (error) return;
-    console.log(certificate, accountAddress);
-    web3Ref.current.eth.defaultAccount = accountAddress;
-    contractRef.current.defaultAccount = accountAddress;
-    const result: boolean = await contractRef.current.methods
-      .issueCertificate(
-        certificate.name,
-        certificate.course,
-        certificate.degree,
-        certificate.graduatingYear,
-        certificate.enrolledYear,
-        certificate.recipient
-      )
-      .send({ from: accountAddress, gas: 3000000 });
-    console.log(result, accountAddress);
-    // setCertificateList(results);
+
+    // console.log(certificate, accountAddress);
+    try {
+      
+      web3Ref.current.eth.defaultAccount = accountAddress;
+      contractRef.current.defaultAccount = accountAddress;
+      const result = await contractRef.current.methods
+        .issueCertificate(
+          certificate.name,
+          certificate.course,
+          certificate.degree,
+          certificate.graduatingYear,
+          certificate.enrolledYear,
+          certificate.recipient
+        )
+        .send({ from: accountAddress, gas: 3000000 });
+      console.log(result)
+      if (result.status !==  null && result.status){
+        setStatus(true);
+      }  else {
+        setStatus(false);
+      }
+      setShowVerify(true);
+    } catch (err) {
+      console.error(err)
+      setStatus(false);
+      setShowVerify(true);
+    }
+
   };
 
   return (
@@ -176,6 +194,16 @@ const University: Function = () => {
             Issue Certificate
           </Button>
         </Box>
+        <Box mb={10} style={{ width: '50%', margin: 'auto' }}>
+        {showVerify ? (
+          status ? (
+            <Alert severity="success">Certificate Issued!</Alert>
+          ) : (
+            <Alert severity="error">Error in issuing certificate!</Alert>
+          )
+        ) : null}
+        </Box>
+
       </Box>
     </Box>
   );

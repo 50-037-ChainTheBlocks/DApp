@@ -1,7 +1,7 @@
 const contractAddress =
   // process.env.REACT_APP_CONTRACT_ADDRESS ||
-  '0x2b2846fCE4BccbD0ec5DD32A0B96D89339b224f5';
-
+  '0x7bde0f074097C46CAccEb817CCc891B3dDD3DCF8';
+  
 const abi = [
   {
     anonymous: false,

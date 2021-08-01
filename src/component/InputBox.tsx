@@ -10,7 +10,7 @@ const InputBox = (props: any) => {
   };
 
   return (
-    <Box className={classes.inputBox}>
+    <Box>
       <TextField
         label={label !== undefined ? label : ''}
         variant="outlined"
