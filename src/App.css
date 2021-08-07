@@ -37,3 +37,7 @@
     transform: rotate(360deg);
   }
 }
+
+.MuiTabs-flexContainer {
+  height: 100%;
+}

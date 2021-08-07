@@ -5,7 +5,8 @@ import { Login } from './page/login/Login';
 import { Student } from './page/student/Student';
 import { Institution } from './page/institution/Institution';
 import { University } from '@page/university/University';
-import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'; 
+import { Home } from '@page/home';
+import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 
 function App() {
   return (
@@ -26,19 +27,22 @@ function App() {
       </header> */}
       <Router>
         <Switch>
-            <Route path="/login">
-              <Login/>
-            </Route>
-            <Route path="/student">
-              <Student />
-            </Route>
-            <Route path="/institution">
-              <Institution/>
-            </Route>
-            <Route path="/university">
-              <University/>
-            </Route>
-          </Switch>
+          <Route path="/">
+            <Home />
+          </Route>
+          <Route path="/login">
+            <Login />
+          </Route>
+          <Route path="/student">
+            <Student />
+          </Route>
+          <Route path="/institution">
+            <Institution />
+          </Route>
+          <Route path="/university">
+            <University />
+          </Route>
+        </Switch>
       </Router>
     </div>
   );

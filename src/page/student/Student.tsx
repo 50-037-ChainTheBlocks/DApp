@@ -63,7 +63,7 @@ const Student: Function = () => {
   };
 
   return (
-    <Box>
+    <Box mx="auto" mb={2}>
       <Box mb={2}>
         <Typography variant="h4" style={{ margin: '16px 0px' }}>
           Student Main Page
@@ -109,10 +109,11 @@ const Student: Function = () => {
           flexWrap="wrap"
           justifyContent="center"
           bgcolor={grey[200]}
-          height={400}
+          height={350}
           width={800}
           p={2}
           borderRadius={8}
+          style={{ overflow: 'scroll' }}
         >
           {certificateList.map((cert, i) => {
             return (

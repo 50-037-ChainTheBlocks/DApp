@@ -1,20 +1,59 @@
 import { useEffect, useState, useCallback, ChangeEvent } from 'react';
-import { Typography, Button, Box, TextField } from '@material-ui/core';
+import {
+  Typography,
+  Button,
+  Box,
+  TextField,
+  CircularProgress,
+} from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import debounce from 'lodash/debounce';
 import { useContract, useWeb3 } from '@services/contract/web3';
 import { useMetamask, getAddressFromMetamask } from '@services/metamask';
 import { IssuedCertificate } from '@param/issuedCertificate';
 
+const FORM_FIELDS = [
+  {
+    name: 'name',
+    label: 'Recipient Name',
+  },
+  {
+    name: 'course',
+    label: 'Course',
+  },
+  {
+    name: 'degree',
+    label: 'Degree',
+  },
+  {
+    name: 'enrolledYear',
+    label: 'Enrolled Year',
+  },
+  {
+    name: 'graduatingYear',
+    label: 'Graduating Year',
+  },
+  {
+    name: 'issuer',
+    label: 'Issuer',
+  },
+  {
+    name: 'recipient',
+    label: 'Recipient',
+  },
+  {
+    name: 'institutionName',
+    label: 'Institution Name',
+  },
+];
+
 const Institution: Function = () => {
-  const [accountAddress, setAccountAddress] = useState('');
-  const [error, setError] = useState(false);
   // const [certificateList, setCertificateList] = useState<Certificate[]>([]);
   const [isVerified, setIsVerified] = useState(false);
   const [showVerify, setShowVerify] = useState(false);
   const web3Ref = useWeb3();
   const contractRef = useContract(web3Ref.current);
-  const [metamaskEnabled, metamaskConnect] = useMetamask(web3Ref.current);
+  const [loading, setLoading] = useState(false);
 
   const [certificate, setCertificate] = useState<IssuedCertificate>({
     name: '',
@@ -27,17 +66,6 @@ const Institution: Function = () => {
     institutionName: '',
   });
 
-  const validateAddress = useCallback(
-    debounce((addr: string) => {
-      setError(!web3Ref.current.utils.isAddress(addr));
-    }, 200),
-    []
-  );
-
-  useEffect(() => {
-    if (accountAddress) validateAddress(accountAddress);
-  }, [accountAddress, validateAddress]);
-
   const inputChangeHandler = (evt: any) => {
     const value = evt.target.value;
     setCertificate({
@@ -45,11 +73,6 @@ const Institution: Function = () => {
       [evt.target.name]: value,
     });
     setShowVerify(false);
-  };
-
-  const setAddressFromMetamask = async () => {
-    const account = await getAddressFromMetamask();
-    setAccountAddress(account);
   };
 
   //   string memory _name,
@@ -62,10 +85,9 @@ const Institution: Function = () => {
   //   address _sender
 
   const verifyCertificate = async () => {
-    if (error) return;
+    if (Object.values(certificate).some((i) => i === '')) return;
+    setLoading(true);
     console.log(certificate);
-    web3Ref.current.eth.defaultAccount = accountAddress;
-    contractRef.current.defaultAccount = accountAddress;
     const result: boolean = await contractRef.current.methods
       .verifyCertificate(
         certificate.name,
@@ -81,6 +103,7 @@ const Institution: Function = () => {
     // setCertificateList(results);
     setIsVerified(result);
     setShowVerify(true);
+    setLoading(false);
   };
 
   return (
@@ -95,80 +118,50 @@ const Institution: Function = () => {
         mb={6}
         style={{ flexDirection: 'column', width: '50%', margin: 'auto' }}
       >
-        <TextField
-          name="name"
-          label="Recipient Name"
-          variant="outlined"
-          fullWidth
-          onChange={inputChangeHandler}
-        ></TextField>
-        <TextField
-          name="course"
-          label="Course"
-          variant="outlined"
-          fullWidth
-          onChange={inputChangeHandler}
-        ></TextField>
-        <TextField
-          name="degree"
-          label="Degree"
-          variant="outlined"
-          fullWidth
-          onChange={inputChangeHandler}
-        ></TextField>
-        <TextField
-          name="enrolledYear"
-          label="Enrolled Year"
-          variant="outlined"
-          fullWidth
-          onChange={inputChangeHandler}
-        ></TextField>
-        <TextField
-          name="graduatingYear"
-          label="Graduating Year"
-          variant="outlined"
-          fullWidth
-          onChange={inputChangeHandler}
-        ></TextField>
-        <TextField
-          name="issuer"
-          label="Issuer"
-          variant="outlined"
-          fullWidth
-          onChange={inputChangeHandler}
-        ></TextField>
-        <TextField
-          name="recipient"
-          label="Recipient"
-          variant="outlined"
-          fullWidth
-          onChange={inputChangeHandler}
-        ></TextField>
-        <TextField
-          name="institutionName"
-          label="Institution Name"
-          variant="outlined"
-          fullWidth
-          onChange={inputChangeHandler}
-        ></TextField>
+        {FORM_FIELDS.map(({ name, label }) => {
+          return (
+            <TextField
+              name={name}
+              label={label}
+              variant="outlined"
+              fullWidth
+              onChange={inputChangeHandler}
+              key={name}
+              style={{ marginBottom: '0.75rem' }}
+            />
+          );
+        })}
       </Box>
-      <Box mb={10} style={{ width: '50%', margin: 'auto' }}>
-        {showVerify ? (
-          isVerified ? (
+      {showVerify && (
+        <Box mb={2} width="50%" mx="auto">
+          {isVerified ? (
             <Alert severity="success">Verified!</Alert>
           ) : (
             <Alert severity="error">Not Verified!</Alert>
-          )
-        ) : null}
-      </Box>
-      <Box mb={2}>
+          )}
+        </Box>
+      )}
+      <Box mb={2} style={{ position: 'relative' }}>
         <Button
           onClick={verifyCertificate}
           color="secondary"
           variant="contained"
+          disabled={loading}
         >
           Verify
         </Button>
+        {loading && (
+          <CircularProgress
+            size={24}
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              marginLeft: '-12px',
+              marginTop: '-12px',
+            }}
+          />
+        )}
       </Box>
     </Box>
   );

@@ -1,7 +1,7 @@
 const contractAddress =
-  // process.env.REACT_APP_CONTRACT_ADDRESS ||
-  '0x7bde0f074097C46CAccEb817CCc891B3dDD3DCF8';
-  
+  process.env.REACT_APP_CONTRACT_ADDRESS ||
+  '0xDfA973C71fcDCF0410F4Ac673be5A004454Ad747';
+
 const abi = [
   {
     anonymous: false,
@@ -69,7 +69,7 @@ const abi = [
           },
           {
             internalType: 'uint256',
-            name: 'gradudatingYear',
+            name: 'graduatingYear',
             type: 'uint256',
           },
           {
@@ -153,7 +153,7 @@ const abi = [
       },
       {
         internalType: 'uint256',
-        name: '_gradudatingYear',
+        name: '_graduatingYear',
         type: 'uint256',
       },
       {
@@ -168,7 +168,13 @@ const abi = [
       },
     ],
     name: 'issueCertificate',
-    outputs: [],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
@@ -284,7 +290,7 @@ const abi = [
       },
       {
         internalType: 'uint256',
-        name: '_gradudatingYear',
+        name: '_graduatingYear',
         type: 'uint256',
       },
       {

@@ -8,7 +8,7 @@ import { TabPanel } from '../../component/TabPanel';
 const Login: Function = () => {
   const [username, setUsername] = useState<string | null>(null);
   const [password, setPassword] = useState<string | null>(null);
-  const [tabValue, setTabValue] = useState<number | null>(0);
+  const [tabValue, setTabValue] = useState(0);
   const [showAlert, setShowAlert] = useState(false);
 
   const submitButtonHandler = (e: any) => {

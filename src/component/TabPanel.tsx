@@ -1,23 +1,25 @@
-import { useState } from 'react';
-import {
-  Button,
-  Box,
-  Tab,
-  Tabs,
-  TextField,
-  Typography,
-} from '@material-ui/core';
-import { useStyles } from './style';
+import React, { HTMLProps } from 'react';
 
-export const TabPanel = (props: any) => {
-  const { children, value, index } = props;
+interface TabPanelProps extends HTMLProps<HTMLDivElement> {
+  value: number;
+  index: number;
+}
 
+export const TabPanel: React.FC<TabPanelProps> = ({
+  children,
+  value,
+  index,
+  style,
+  ...props
+}) => {
   return (
     <div
       role="tabpanel"
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
+      style={{ flexGrow: 1, overflow: 'scroll', ...style }}
+      {...props}
     >
       {value === index ? children : null}
     </div>
