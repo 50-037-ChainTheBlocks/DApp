@@ -17,6 +17,7 @@ import { useContract, useWeb3 } from '@services/contract/web3';
 import { useMetamask, getAddressFromMetamask } from '@services/metamask';
 import { Certificate } from '@param/certificate';
 
+import { soliditySha3 } from "web3-utils";
 const FORM_FIELDS: { label: string; name: string }[] = [
   {
     name: 'name',
@@ -64,6 +65,11 @@ const University: Function = () => {
   const contractRef = useContract(web3Ref.current);
   const [metamaskEnabled, metamaskConnect] = useMetamask(web3Ref.current);
 
+  const getInstitutionName = async() => {
+    const institutionName = await contractRef.current.methods.getInstitutionName(accountAddress).call();
+    return institutionName;
+  }
+
   const validateAddress = useCallback(
     debounce((addr: string) => {
       setError(!web3Ref.current.utils.isAddress(addr));
@@ -97,16 +103,26 @@ const University: Function = () => {
     try {
       web3Ref.current.eth.defaultAccount = accountAddress;
       contractRef.current.defaultAccount = accountAddress;
+
+      const institutionName = await getInstitutionName();
+
+      const payload = soliditySha3(
+        certificate.name,
+        certificate.course,
+        certificate.degree,
+        institutionName,
+        certificate.graduatingYear,
+        certificate.enrolledYear,
+        certificate.recipient,
+        accountAddress)
+
       const result = await contractRef.current.methods
-        .issueCertificate(
-          certificate.name,
-          certificate.course,
-          certificate.degree,
-          certificate.graduatingYear,
-          certificate.enrolledYear,
-          certificate.recipient
-        )
-        .send({ from: accountAddress, gas: 3000000 });
+      .issueCertificate(
+        payload,
+        certificate.recipient
+      )
+      .send({ from: accountAddress, gas: 3000000 });
+
       console.log(result);
       if (result.status !== null && result.status) {
         setStatus(true);
@@ -114,6 +130,7 @@ const University: Function = () => {
         setStatus(false);
       }
       setShowVerify(true);
+
     } catch (err) {
       console.error(err);
       setStatus(false);

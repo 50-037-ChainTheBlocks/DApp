@@ -12,6 +12,7 @@ import { useContract, useWeb3 } from '@services/contract/web3';
 import { useMetamask, getAddressFromMetamask } from '@services/metamask';
 import { IssuedCertificate } from '@param/issuedCertificate';
 
+import { soliditySha3 } from  "web3-utils";
 const FORM_FIELDS = [
   {
     name: 'name',
@@ -88,18 +89,38 @@ const Institution: Function = () => {
     if (Object.values(certificate).some((i) => i === '')) return;
     setLoading(true);
     console.log(certificate);
+    // const result = await contractRef.current.methods
+    // .issueCertificate(
+    //   keccak256(JSON.stringify({
+    //     ...certificate,
+    //     institutionName: institutionName,
+    //     institutionSender: accountAddress
+    //   })).toString('hex'),
+    //   // certificate.name,
+    //   // certificate.course,
+    //   // certificate.degree,
+    //   // certificate.graduatingYear,
+    //   // certificate.enrolledYear,
+    //   certificate.recipient
+    // )
+    // .send({ from: accountAddress, gas: 3000000 });
+
+    const payload = soliditySha3(
+      certificate.name,
+      certificate.course,
+      certificate.degree,
+      certificate.institutionName,
+      certificate.graduatingYear,
+      certificate.enrolledYear,
+      certificate.recipient,
+      certificate.issuer
+    )
+    
     const result: boolean = await contractRef.current.methods
       .verifyCertificate(
-        certificate.name,
-        certificate.course,
-        certificate.degree,
-        certificate.institutionName,
-        certificate.graduatingYear,
-        certificate.enrolledYear,
-        certificate.recipient,
-        certificate.issuer
-      )
-      .call();
+        payload, 
+      certificate.recipient
+    ).call();
     // setCertificateList(results);
     setIsVerified(result);
     setShowVerify(true);
