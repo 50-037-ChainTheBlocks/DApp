@@ -1,325 +1,192 @@
 const contractAddress =
   process.env.REACT_APP_CONTRACT_ADDRESS ||
-  '0xDfA973C71fcDCF0410F4Ac673be5A004454Ad747';
-
+  // '0xDfA973C71fcDCF0410F4Ac673be5A004454Ad747';
+  "0xbe7c01155ce0b503320af519a75bc63e50c3ae28";
+  
 const abi = [
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'previousOwner',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
-      },
-    ],
-    name: 'OwnershipTransferred',
-    type: 'event',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
-      },
-    ],
-    name: 'certChain',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'getAllMyCertificates',
-    outputs: [
-      {
-        components: [
-          {
-            internalType: 'string',
-            name: 'name',
-            type: 'string',
-          },
-          {
-            internalType: 'string',
-            name: 'course',
-            type: 'string',
-          },
-          {
-            internalType: 'string',
-            name: 'degree',
-            type: 'string',
-          },
-          {
-            internalType: 'string',
-            name: 'institutionName',
-            type: 'string',
-          },
-          {
-            internalType: 'uint256',
-            name: 'graduatingYear',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'enrolledYear',
-            type: 'uint256',
-          },
-          {
-            internalType: 'address',
-            name: 'recipient',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: 'issuer',
-            type: 'address',
-          },
-        ],
-        internalType: 'struct CertChain.Certificate[]',
-        name: '',
-        type: 'tuple[]',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_institutionAddr',
-        type: 'address',
-      },
-    ],
-    name: 'getInstitutionName',
-    outputs: [
-      {
-        internalType: 'string',
-        name: '',
-        type: 'string',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    name: 'instAddrToName',
-    outputs: [
-      {
-        internalType: 'string',
-        name: '',
-        type: 'string',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'string',
-        name: '_name',
-        type: 'string',
-      },
-      {
-        internalType: 'string',
-        name: '_course',
-        type: 'string',
-      },
-      {
-        internalType: 'string',
-        name: '_degree',
-        type: 'string',
-      },
-      {
-        internalType: 'uint256',
-        name: '_graduatingYear',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '_enrolledYear',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: '_recipient',
-        type: 'address',
-      },
-    ],
-    name: 'issueCertificate',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
-      },
-    ],
-    name: 'issuedCertificateHash',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'owner',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_institutionAddr',
-        type: 'address',
-      },
-      {
-        internalType: 'string',
-        name: '_name',
-        type: 'string',
-      },
-    ],
-    name: 'registerInstitution',
-    outputs: [
-      {
-        internalType: 'string',
-        name: '',
-        type: 'string',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    name: 'registeredInstitution',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
-      },
-    ],
-    name: 'transferOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'string',
-        name: '_name',
-        type: 'string',
-      },
-      {
-        internalType: 'string',
-        name: '_course',
-        type: 'string',
-      },
-      {
-        internalType: 'string',
-        name: '_degree',
-        type: 'string',
-      },
-      {
-        internalType: 'string',
-        name: '_institutionName',
-        type: 'string',
-      },
-      {
-        internalType: 'uint256',
-        name: '_graduatingYear',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '_enrolledYear',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: '_recipient',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: '_sender',
-        type: 'address',
-      },
-    ],
-    name: 'verifyCertificate',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_institutionAddr",
+				"type": "address"
+			}
+		],
+		"name": "getInstitutionName",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "instAddrToName",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "certhash",
+				"type": "bytes32"
+			}
+		],
+		"name": "issueCertificate",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "issuedCertificateHash",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_institutionAddr",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			}
+		],
+		"name": "registerInstitution",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "registeredInstitution",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "certhash",
+				"type": "bytes32"
+			}
+		],
+		"name": "verifyCertificate",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
 ];
 
 export { contractAddress, abi };

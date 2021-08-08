@@ -67,6 +67,8 @@ const University: Function = () => {
 
   const getInstitutionName = async() => {
     const institutionName = await contractRef.current.methods.getInstitutionName(accountAddress).call();
+
+    console.log("name", institutionName)
     return institutionName;
   }
 
@@ -118,8 +120,7 @@ const University: Function = () => {
 
       const result = await contractRef.current.methods
       .issueCertificate(
-        payload,
-        certificate.recipient
+        payload
       )
       .send({ from: accountAddress, gas: 3000000 });
 
