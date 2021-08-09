@@ -69,19 +69,25 @@ const CA: React.FC = () => {
     web3Ref.current.eth.defaultAccount = accountAddress;
     contractRef.current.defaultAccount = accountAddress;
 
-    const result = await contractRef.current.methods
-      .registerInstitution(
-        institution.institutionAddress,
-        institution.institutionName
-      )
-      .send({ from: accountAddress, gas: 3000000 });
-    console.log(result);
-    if ('status' in result && result.status) {
-      setResponse({ isShown: true, isRegistered: true });
-    } else {
+    try {
+      const result = await contractRef.current.methods
+        .registerInstitution(
+          institution.institutionAddress,
+          institution.institutionName
+        )
+        .send({ from: accountAddress, gas: 3000000 });
+      console.log(result);
+      if ('status' in result && result.status) {
+        setResponse({ isShown: true, isRegistered: true });
+      } else {
+        setResponse({ isShown: true, isRegistered: false });
+      }
+    } catch (err) {
+      console.error(err);
       setResponse({ isShown: true, isRegistered: false });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
