@@ -108,7 +108,7 @@ const CA: Function = () => {
           variant="contained"
           disabled={loading}
         >
-          Verify
+          Register
         </Button>
         {loading && (
           <CircularProgress
