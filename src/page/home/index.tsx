@@ -3,7 +3,7 @@ import { Box, Tab, Tabs } from '@material-ui/core';
 import { TabPanel } from '@component/TabPanel';
 import { Institution } from '@page/institution/Institution';
 import { University } from '@page/university/University';
-import { CA } from '@page/student/Student';
+import { CA } from '@page/ca/ca';
 
 const Home: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
