@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, ChangeEvent } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Typography,
   Button,
@@ -6,11 +6,13 @@ import {
   TextField,
   CircularProgress,
 } from '@material-ui/core';
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import { Alert } from '@material-ui/lab';
-import debounce from 'lodash/debounce';
 import { useContract, useWeb3 } from '@services/contract/web3';
-import { useMetamask, getAddressFromMetamask } from '@services/metamask';
-import { IssuedCertificate } from '@param/issuedCertificate';
+import {
+  isIssuedCertificate,
+  IssuedCertificate,
+} from '@param/issuedCertificate';
 
 import { soliditySha3 } from 'web3-utils';
 const FORM_FIELDS = [
@@ -67,6 +69,8 @@ const Institution: Function = () => {
     institutionName: '',
   });
 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const inputChangeHandler = (evt: any) => {
     const value = evt.target.value;
     setCertificate({
@@ -74,6 +78,16 @@ const Institution: Function = () => {
       [evt.target.name]: value,
     });
     setShowVerify(false);
+  };
+
+  const importFile = () => {
+    fileInputRef.current?.click();
+  };
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    console.log(file);
+    const data = JSON.parse(await new Response(file).text());
+    if (isIssuedCertificate(data)) setCertificate(data);
   };
 
   //   string memory _name,
@@ -117,7 +131,7 @@ const Institution: Function = () => {
     );
 
     const result: boolean = await contractRef.current.methods
-      .verifyCertificate(payload, certificate.recipient)
+      .verifyCertificate(payload)
       .call();
     // setCertificateList(results);
     setIsVerified(result);
@@ -145,6 +159,7 @@ const Institution: Function = () => {
               variant="outlined"
               fullWidth
               onChange={inputChangeHandler}
+              value={certificate[name as keyof IssuedCertificate]}
               key={name}
               style={{ marginBottom: '0.75rem' }}
             />
@@ -160,27 +175,46 @@ const Institution: Function = () => {
           )}
         </Box>
       )}
-      <Box mb={2} style={{ position: 'relative' }}>
-        <Button
-          onClick={verifyCertificate}
-          color="secondary"
-          variant="contained"
-          disabled={loading}
-        >
-          Verify
-        </Button>
-        {loading && (
-          <CircularProgress
-            size={24}
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              marginLeft: '-12px',
-              marginTop: '-12px',
-            }}
+      <Box>
+        <Box style={{ display: 'inline' }} mr={2}>
+          <Button
+            onClick={importFile}
+            color="secondary"
+            variant="contained"
+            disabled={loading}
+            startIcon={<CloudUploadIcon />}
+          >
+            Import
+          </Button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleChange}
+            style={{ display: 'none' }}
           />
-        )}
+        </Box>
+        <Box mb={2} style={{ position: 'relative', display: 'inline' }}>
+          <Button
+            onClick={verifyCertificate}
+            color="primary"
+            variant="contained"
+            disabled={loading}
+          >
+            Verify
+          </Button>
+          {loading && (
+            <CircularProgress
+              size={24}
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                marginLeft: '-12px',
+                marginTop: '-12px',
+              }}
+            />
+          )}
+        </Box>
       </Box>
     </Box>
   );

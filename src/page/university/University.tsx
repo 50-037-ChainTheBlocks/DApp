@@ -1,9 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Tab,
-  Tabs,
-  Card,
-  CardContent,
   Typography,
   Button,
   Box,
@@ -12,6 +8,7 @@ import {
   Badge,
 } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
+import SaveAltIcon from '@material-ui/icons/SaveAlt';
 
 import debounce from 'lodash/debounce';
 import { useContract, useWeb3 } from '@services/contract/web3';
@@ -21,6 +18,7 @@ import {
   getChainType,
 } from '@services/metamask';
 import { Certificate } from '@param/certificate';
+import { IssuedCertificate } from '@param/issuedCertificate';
 
 import { soliditySha3 } from 'web3-utils';
 const FORM_FIELDS: { label: string; name: string }[] = [
@@ -70,6 +68,8 @@ const University: Function = () => {
   const contractRef = useContract(web3Ref.current);
   const [metamaskEnabled, metamaskConnect] = useMetamask(web3Ref.current);
   const [networkType, setNetworkType] = useState('');
+  const [issuedCertificate, setIssuedCertificate] =
+    useState<IssuedCertificate | null>(null);
 
   const getInstitutionName = async () => {
     const institutionName = await contractRef.current.methods
@@ -102,6 +102,18 @@ const University: Function = () => {
     const addr = await getAddressFromMetamask();
     setAccountAddress(addr);
     setNetworkType(await getChainType());
+  };
+
+  const populateFields = () => {
+    console.log('hello');
+    setCertificate({
+      ...certificate,
+      course: 'Generic Course',
+      degree: 'Degree',
+      enrolledYear: '2020',
+      graduatingYear: '2021',
+      name: 'Bob',
+    });
   };
 
   const issueCertificate = async () => {
@@ -139,6 +151,11 @@ const University: Function = () => {
         setStatus(false);
       }
       setShowVerify(true);
+      setIssuedCertificate({
+        ...certificate,
+        institutionName,
+        issuer: accountAddress,
+      });
     } catch (err) {
       console.error(err);
       setStatus(false);
@@ -188,7 +205,22 @@ const University: Function = () => {
       {showVerify && (
         <Box mb={2} mx="auto" width="50%">
           {status ? (
-            <Alert severity="success">
+            <Alert
+              severity="success"
+              action={
+                <Button
+                  size="small"
+                  color="inherit"
+                  startIcon={<SaveAltIcon />}
+                  href={`data:text/json;charset=utf-8,${encodeURIComponent(
+                    JSON.stringify(issuedCertificate)
+                  )}`}
+                  download={`${issuedCertificate?.name}_${issuedCertificate?.course}_${issuedCertificate?.institutionName}.json`}
+                >
+                  Download
+                </Button>
+              }
+            >
               Certificate Issued to {certificate.name}!
             </Alert>
           ) : (
@@ -205,6 +237,7 @@ const University: Function = () => {
                 label={label}
                 variant="outlined"
                 fullWidth
+                value={certificate[name as keyof Certificate]}
                 onChange={inputChangeHandler}
                 style={{ marginBottom: '0.75rem' }}
                 disabled={loading}
@@ -215,7 +248,16 @@ const University: Function = () => {
         </Box>
       </Box>
       <Box mb={4}>
-        <Box mb={1} style={{ position: 'relative' }}>
+        <Box display="inline" mr={2}>
+          <Button
+            variant="outlined"
+            onClick={populateFields}
+            disabled={loading}
+          >
+            Populate Fields
+          </Button>
+        </Box>
+        <Box mb={1} style={{ position: 'relative' }} display="inline">
           <Button
             onClick={issueCertificate}
             color="primary"
