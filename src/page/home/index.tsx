@@ -3,7 +3,7 @@ import { Box, Tab, Tabs } from '@material-ui/core';
 import { TabPanel } from '@component/TabPanel';
 import { Institution } from '@page/institution/Institution';
 import { University } from '@page/university/University';
-import { Student } from '@page/student/Student';
+import { CA } from '@page/student/Student';
 
 const Home: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -27,7 +27,7 @@ const Home: React.FC = () => {
         <Tab label="Institution" />
       </Tabs>
       <TabPanel value={tabValue} index={0}>
-        <Student />
+        <CA />
       </TabPanel>
       <TabPanel value={tabValue} index={1}>
         <University />
