@@ -9,15 +9,20 @@ import {
   Box,
   TextField,
   CircularProgress,
+  Badge,
 } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 
 import debounce from 'lodash/debounce';
 import { useContract, useWeb3 } from '@services/contract/web3';
-import { useMetamask, getAddressFromMetamask } from '@services/metamask';
+import {
+  useMetamask,
+  getAddressFromMetamask,
+  getChainType,
+} from '@services/metamask';
 import { Certificate } from '@param/certificate';
 
-import { soliditySha3 } from "web3-utils";
+import { soliditySha3 } from 'web3-utils';
 const FORM_FIELDS: { label: string; name: string }[] = [
   {
     name: 'name',
@@ -64,13 +69,16 @@ const University: Function = () => {
   const web3Ref = useWeb3();
   const contractRef = useContract(web3Ref.current);
   const [metamaskEnabled, metamaskConnect] = useMetamask(web3Ref.current);
+  const [networkType, setNetworkType] = useState('');
 
-  const getInstitutionName = async() => {
-    const institutionName = await contractRef.current.methods.getInstitutionName(accountAddress).call();
+  const getInstitutionName = async () => {
+    const institutionName = await contractRef.current.methods
+      .getInstitutionName(accountAddress)
+      .call();
 
-    console.log("name", institutionName)
+    console.log('name', institutionName);
     return institutionName;
-  }
+  };
 
   const validateAddress = useCallback(
     debounce((addr: string) => {
@@ -93,6 +101,7 @@ const University: Function = () => {
   const setAddressFromMetamask = async () => {
     const addr = await getAddressFromMetamask();
     setAccountAddress(addr);
+    setNetworkType(await getChainType());
   };
 
   const issueCertificate = async () => {
@@ -116,13 +125,12 @@ const University: Function = () => {
         certificate.graduatingYear,
         certificate.enrolledYear,
         certificate.recipient,
-        accountAddress)
+        accountAddress
+      );
 
       const result = await contractRef.current.methods
-      .issueCertificate(
-        payload
-      )
-      .send({ from: accountAddress, gas: 3000000 });
+        .issueCertificate(payload)
+        .send({ from: accountAddress, gas: 3000000 });
 
       console.log(result);
       if (result.status !== null && result.status) {
@@ -131,7 +139,6 @@ const University: Function = () => {
         setStatus(false);
       }
       setShowVerify(true);
-
     } catch (err) {
       console.error(err);
       setStatus(false);
@@ -145,28 +152,36 @@ const University: Function = () => {
     <Box>
       <Box mb={2}>
         <Typography variant="h4" style={{ margin: '16px 0px' }}>
-          University Main Page
+          Institution Main Page
         </Typography>
-        <TextField
-          label="Wallet Address"
-          placeholder="Get address from Metamask"
-          value={accountAddress}
-          error={error}
-          helperText={error ? 'Invalid Address' : ''}
-          InputProps={{ readOnly: true }}
-          variant="outlined"
-          fullWidth
-          style={{ width: '500px' }}
-        />
+        <Badge
+          badgeContent={networkType === '' ? 0 : networkType}
+          color="secondary"
+        >
+          <TextField
+            label="Wallet Address"
+            placeholder="Get address from Metamask"
+            value={accountAddress}
+            error={error}
+            helperText={error ? 'Invalid Address' : ''}
+            InputProps={{ readOnly: true }}
+            variant="outlined"
+            fullWidth
+            style={{ width: '500px' }}
+          />
+        </Badge>
       </Box>
       <Box mb={4}>
         <Box mb={1}>
           <Button
-            onClick={metamaskEnabled ? setAddressFromMetamask : metamaskConnect}
+            onClick={() => {
+              metamaskConnect();
+              setAddressFromMetamask();
+            }}
             color="secondary"
             variant="contained"
           >
-            {metamaskEnabled ? 'Import from Metamask' : 'Use Metamask'}
+            Use Metamask
           </Button>
         </Box>
       </Box>

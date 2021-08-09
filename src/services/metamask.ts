@@ -8,6 +8,28 @@ const getAddressFromMetamask = async () => {
   return account;
 };
 
+const getChainType = async () => {
+  const chainId = parseInt(
+    await (window as any).ethereum.request({
+      method: 'eth_chainId',
+    })
+  );
+  switch (chainId) {
+    case 1:
+      return 'Mainnet';
+    case 3:
+      return 'Ropsten';
+    case 4:
+      return 'Rinkeby';
+    case 5:
+      return 'Goerli';
+    case 42:
+      return 'Kovan';
+    default:
+      return 'Unknown';
+  }
+};
+
 const useMetamask = (web3: Web3): [boolean, () => void] => {
   const [metamaskEnabled, setMetamaskEnabled] = useState(false);
   const metamaskConnect = () => {
@@ -24,4 +46,4 @@ const useMetamask = (web3: Web3): [boolean, () => void] => {
   return [metamaskEnabled, metamaskConnect];
 };
 
-export { getAddressFromMetamask, useMetamask };
+export { getAddressFromMetamask, useMetamask, getChainType };

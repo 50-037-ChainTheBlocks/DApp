@@ -38,6 +38,7 @@
   }
 }
 
-.MuiTabs-flexContainer {
+.MuiTabs-flexContainer,
+.MuiTabs-root {
   height: 100%;
 }

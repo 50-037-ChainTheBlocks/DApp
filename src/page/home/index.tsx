@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Tab, Tabs } from '@material-ui/core';
+import { Box, Paper, Tab, Tabs } from '@material-ui/core';
 import { TabPanel } from '@component/TabPanel';
 import { Institution } from '@page/institution/Institution';
 import { University } from '@page/university/University';
@@ -14,18 +14,20 @@ const Home: React.FC = () => {
 
   return (
     <Box display="flex">
-      <Tabs
-        value={tabValue}
-        onChange={changeTabValueHandler}
-        orientation="vertical"
-        aria-label="simple tabs example"
-        style={{ flexShrink: 0 }}
-        centered
-      >
-        <Tab label="Student" />
-        <Tab label="University" />
-        <Tab label="Institution" />
-      </Tabs>
+      <Paper elevation={3}>
+        <Tabs
+          value={tabValue}
+          onChange={changeTabValueHandler}
+          orientation="vertical"
+          aria-label="simple tabs example"
+          style={{ flexShrink: 0 }}
+          centered
+        >
+          <Tab label="Admin" />
+          <Tab label="Institution" />
+          <Tab label="Verification" />
+        </Tabs>
+      </Paper>
       <TabPanel value={tabValue} index={0}>
         <CA />
       </TabPanel>

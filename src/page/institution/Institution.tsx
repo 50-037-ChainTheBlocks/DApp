@@ -12,7 +12,7 @@ import { useContract, useWeb3 } from '@services/contract/web3';
 import { useMetamask, getAddressFromMetamask } from '@services/metamask';
 import { IssuedCertificate } from '@param/issuedCertificate';
 
-import { soliditySha3 } from  "web3-utils";
+import { soliditySha3 } from 'web3-utils';
 const FORM_FIELDS = [
   {
     name: 'name',
@@ -114,13 +114,11 @@ const Institution: Function = () => {
       certificate.enrolledYear,
       certificate.recipient,
       certificate.issuer
-    )
-    
+    );
+
     const result: boolean = await contractRef.current.methods
-      .verifyCertificate(
-        payload, 
-      certificate.recipient
-    ).call();
+      .verifyCertificate(payload, certificate.recipient)
+      .call();
     // setCertificateList(results);
     setIsVerified(result);
     setShowVerify(true);
@@ -130,7 +128,7 @@ const Institution: Function = () => {
   return (
     <Box style={{ alignContent: 'center', alignItems: 'center' }}>
       <Typography variant="h4" style={{ margin: '16px 0px' }}>
-        Institution Main Page
+        Verification Main Page
       </Typography>
       <Typography variant="h6" style={{ margin: '16px 0px' }}>
         Verify Certificate
