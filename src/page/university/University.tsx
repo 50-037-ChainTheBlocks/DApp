@@ -248,7 +248,7 @@ const University: Function = () => {
         </Box>
       </Box>
       <Box mb={4}>
-        <Box display="inline" mr={2}>
+        {/* <Box display="inline" mr={2}>
           <Button
             variant="outlined"
             onClick={populateFields}
@@ -256,7 +256,7 @@ const University: Function = () => {
           >
             Populate Fields
           </Button>
-        </Box>
+        </Box> */}
         <Box mb={1} style={{ position: 'relative' }} display="inline">
           <Button
             onClick={issueCertificate}
